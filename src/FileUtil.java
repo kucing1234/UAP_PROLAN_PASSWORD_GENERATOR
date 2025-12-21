@@ -1,29 +1,30 @@
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class FileUtil {
 
-    private static final String FILE = "password_data.csv";
+    private static final String FILE_NAME = "password_data.csv";
 
-    // READ
-    public static ArrayList<PasswordData> readData() {
+    public static ArrayList<PasswordData> loadData() {
         ArrayList<PasswordData> list = new ArrayList<>();
-        File file = new File(FILE);
 
+        File file = new File(FILE_NAME);
         if (!file.exists()) return list;
 
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
-            br.readLine(); // skip header
+            br.readLine();
+
             while ((line = br.readLine()) != null) {
-                String[] d = line.split(",");
-                list.add(new PasswordData(
-                        Integer.parseInt(d[0]),
-                        d[1],
-                        d[2],
-                        LocalDate.parse(d[3])
-                ));
+                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                int id = Integer.parseInt(data[0]);
+                String akun = data[1];
+                String password = data[2].replace("\"", "");
+                LocalDate tanggal = LocalDate.parse(data[3]);
+
+                list.add(new PasswordData(id, akun, password, tanggal));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -31,15 +32,20 @@ public class FileUtil {
         return list;
     }
 
-    // WRITE (Create / Update / Delete)
-    public static void writeData(ArrayList<PasswordData> list) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE))) {
+    public static void saveData(ArrayList<PasswordData> list) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(FILE_NAME))) {
             pw.println("id,akun,password,tanggal");
+
+            list.sort(Comparator.comparingInt(PasswordData::getId));
             for (PasswordData p : list) {
-                pw.println(p.id + "," + p.akun + "," + p.password + "," + p.tanggal);
+                pw.println(p.toCSV());
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static int getNextId(ArrayList<PasswordData> list) {
+        return list.stream().mapToInt(PasswordData::getId).max().orElse(0) + 1;
     }
 }
