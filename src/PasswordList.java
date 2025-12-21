@@ -1,41 +1,32 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class PasswordList extends JFrame {
 
-    JTable table;
-    DefaultTableModel model;
-    ArrayList<PasswordData> list;
+    private JTable table;
+    private DefaultTableModel model;
+    private ArrayList<PasswordData> list;
 
     public PasswordList() {
+        list = FileUtil.loadData();
+
         setTitle("Daftar Password");
-        setSize(500, 400);
-        setLayout(null);
+        setSize(600, 350);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
-        list = FileUtil.readData();
-
-        model = new DefaultTableModel(new String[]{
-                "ID", "Nama Akun", "Password (Encrypted)", "Tanggal"
-        }, 0);
+        model = new DefaultTableModel(
+                new String[]{"ID", "Akun", "Password", "Tanggal"}, 0
+        );
 
         table = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        add(scrollPane, BorderLayout.CENTER);
+
         loadTable();
-
-        JScrollPane sp = new JScrollPane(table);
-        sp.setBounds(20,20,440,250);
-
-        JButton deleteBtn = new JButton("Hapus");
-        JButton sortBtn = new JButton("Sort Tanggal");
-
-        deleteBtn.setBounds(100,300,120,30);
-        sortBtn.setBounds(260,300,120,30);
-
-        add(sp); add(deleteBtn); add(sortBtn);
-
-        deleteBtn.addActionListener(e -> deleteData());
-        sortBtn.addActionListener(e -> sortData());
 
         setVisible(true);
     }
@@ -44,22 +35,11 @@ public class PasswordList extends JFrame {
         model.setRowCount(0);
         for (PasswordData p : list) {
             model.addRow(new Object[]{
-                    p.id, p.akun, p.password, p.tanggal
+                    p.getId(),
+                    p.getAkun(),
+                    p.getPassword(),
+                    p.getTanggal()
             });
         }
-    }
-
-    private void deleteData() {
-        int row = table.getSelectedRow();
-        if (row >= 0) {
-            list.remove(row);
-            FileUtil.writeData(list);
-            loadTable();
-        }
-    }
-
-    private void sortData() {
-        list.sort(Comparator.comparing(p -> p.tanggal));
-        loadTable();
     }
 }
