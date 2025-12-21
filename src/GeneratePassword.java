@@ -156,6 +156,6 @@ public class GeneratePassword extends JFrame {
 
         FileUtil.writeData(list);
         JOptionPane.showMessageDialog(this,
-                "Password berhasil disimpan dengan aman!");
+                "Password berhasil disimpan !");
     }
 }
