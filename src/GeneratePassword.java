@@ -5,16 +5,8 @@ import java.util.Random;
 
 public class GeneratePassword extends JFrame {
 
-    // Input fields
-    private JTextField akunField;
-    private JTextField lengthField;
-    private JTextField resultField;
-
-    // Checkbox pilihan karakter
-    private JCheckBox upper;
-    private JCheckBox lower;
-    private JCheckBox number;
-    private JCheckBox symbol;
+    JTextField akunField, lengthField, resultField;
+    JCheckBox upper, lower, number, symbol;
 
     public GeneratePassword() {
         setTitle("Generate Password");
@@ -22,125 +14,78 @@ public class GeneratePassword extends JFrame {
         setLayout(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        // ===== LABEL =====
         JLabel akunLabel = new JLabel("Nama Akun / Layanan");
         JLabel lengthLabel = new JLabel("Panjang Password (Jumlah Karakter)");
         JLabel resultLabel = new JLabel("Hasil Password");
 
-        akunLabel.setBounds(20, 20, 200, 25);
-        lengthLabel.setBounds(20, 60, 250, 25);
-        resultLabel.setBounds(20, 190, 200, 25);
+        akunLabel.setBounds(20,20,250,25);
+        lengthLabel.setBounds(20,60,300,25);
+        resultLabel.setBounds(20,190,200,25);
 
-        // ===== INPUT =====
         akunField = new JTextField();
         lengthField = new JTextField();
         resultField = new JTextField();
-        resultField.setEditable(false); // output saja
+        resultField.setEditable(false);
 
-        akunField.setBounds(20, 40, 360, 25);
-        lengthField.setBounds(20, 80, 360, 25);
-        resultField.setBounds(20, 210, 360, 25);
+        akunField.setBounds(20,40,360,25);
+        lengthField.setBounds(20,80,360,25);
+        resultField.setBounds(20,210,360,25);
 
-        // ===== CHECKBOX =====
-        upper = new JCheckBox("Huruf Besar (A–Z)");
-        lower = new JCheckBox("Huruf Kecil (a–z)");
-        number = new JCheckBox("Angka (0–9)");
-        symbol = new JCheckBox("Simbol (!@#$%)");
+        upper = new JCheckBox("Huruf Besar (A-Z)");
+        lower = new JCheckBox("Huruf Kecil (a-z)");
+        number = new JCheckBox("Angka (0-9)");
+        symbol = new JCheckBox("Simbol (!@#$)");
 
-        upper.setBounds(20, 110, 180, 25);
-        lower.setBounds(200, 110, 180, 25);
-        number.setBounds(20, 140, 180, 25);
-        symbol.setBounds(200, 140, 180, 25);
+        upper.setBounds(20,110,180,25);
+        lower.setBounds(200,110,180,25);
+        number.setBounds(20,140,180,25);
+        symbol.setBounds(200,140,180,25);
 
-        // ===== BUTTON =====
-        JButton generateBtn = new JButton("Generate Password");
-        JButton saveBtn = new JButton("Simpan Password");
+        JButton genBtn = new JButton("Generate");
+        JButton saveBtn = new JButton("Simpan");
 
-        generateBtn.setBounds(60, 260, 140, 30);
-        saveBtn.setBounds(220, 260, 140, 30);
+        genBtn.setBounds(80,260,110,30);
+        saveBtn.setBounds(220,260,110,30);
 
-        // ===== ADD COMPONENT =====
-        add(akunLabel);
-        add(lengthLabel);
-        add(resultLabel);
+        add(akunLabel); add(lengthLabel); add(resultLabel);
+        add(akunField); add(lengthField); add(resultField);
+        add(upper); add(lower); add(number); add(symbol);
+        add(genBtn); add(saveBtn);
 
-        add(akunField);
-        add(lengthField);
-        add(resultField);
-
-        add(upper);
-        add(lower);
-        add(number);
-        add(symbol);
-
-        add(generateBtn);
-        add(saveBtn);
-
-        // ===== ACTION =====
-        generateBtn.addActionListener(e -> generatePassword());
-        saveBtn.addActionListener(e -> savePassword());
+        genBtn.addActionListener(e -> generate());
+        saveBtn.addActionListener(e -> save());
 
         setVisible(true);
     }
 
-    // ===== LOGIC GENERATE PASSWORD =====
-    private void generatePassword() {
+    private void generate() {
         try {
-            // Validasi panjang password
-            int length = Integer.parseInt(lengthField.getText());
-            if (length < 6) {
-                JOptionPane.showMessageDialog(this,
-                        "Panjang password minimal 6 karakter!",
-                        "Validasi",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+            int len = Integer.parseInt(lengthField.getText());
+            if (len < 6) throw new Exception();
 
-            // Validasi jenis karakter
-            String characters = "";
-            if (upper.isSelected()) characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            if (lower.isSelected()) characters += "abcdefghijklmnopqrstuvwxyz";
-            if (number.isSelected()) characters += "0123456789";
-            if (symbol.isSelected()) characters += "!@#$%^&*";
+            String chars = "";
+            if (upper.isSelected()) chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            if (lower.isSelected()) chars += "abcdefghijklmnopqrstuvwxyz";
+            if (number.isSelected()) chars += "0123456789";
+            if (symbol.isSelected()) chars += "!@#$%^&*";
 
-            if (characters.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "Pilih minimal satu jenis karakter!",
-                        "Validasi",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
+            if (chars.isEmpty()) throw new Exception();
 
-            // Generate password
-            Random random = new Random();
-            StringBuilder password = new StringBuilder();
+            Random r = new Random();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < len; i++)
+                sb.append(chars.charAt(r.nextInt(chars.length())));
 
-            for (int i = 0; i < length; i++) {
-                password.append(
-                        characters.charAt(
-                                random.nextInt(characters.length())
-                        )
-                );
-            }
+            resultField.setText(sb.toString());
 
-            // Tampilkan hasil
-            resultField.setText(password.toString());
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Panjang password harus berupa angka!",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Input tidak valid!");
         }
     }
 
-    // ===== LOGIC SIMPAN PASSWORD =====
-    private void savePassword() {
+    private void save() {
         if (akunField.getText().isEmpty() || resultField.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Nama akun dan hasil password tidak boleh kosong!",
-                    "Validasi",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Data belum lengkap!");
             return;
         }
 
@@ -155,7 +100,6 @@ public class GeneratePassword extends JFrame {
         ));
 
         FileUtil.writeData(list);
-        JOptionPane.showMessageDialog(this,
-                "Password berhasil disimpan !");
+        JOptionPane.showMessageDialog(this, "Data tersimpan!");
     }
 }

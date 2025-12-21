@@ -3,7 +3,7 @@ import java.time.LocalDate;
 public class PasswordData {
     public int id;
     public String akun;
-    public String password;
+    public String password; // terenkripsi
     public LocalDate tanggal;
 
     public PasswordData(int id, String akun, String password, LocalDate tanggal) {
