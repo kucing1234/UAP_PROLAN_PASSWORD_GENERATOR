@@ -3,28 +3,35 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class FileUtil {
+
     private static final String FILE = "password_data.csv";
 
+    // READ
     public static ArrayList<PasswordData> readData() {
         ArrayList<PasswordData> list = new ArrayList<>();
+        File file = new File(FILE);
+
+        if (!file.exists()) return list;
+
         try (BufferedReader br = new BufferedReader(new FileReader(FILE))) {
             String line;
             br.readLine(); // skip header
             while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
+                String[] d = line.split(",");
                 list.add(new PasswordData(
-                        Integer.parseInt(data[0]),
-                        data[1],
-                        data[2],
-                        LocalDate.parse(data[3])
+                        Integer.parseInt(d[0]),
+                        d[1],
+                        d[2],
+                        LocalDate.parse(d[3])
                 ));
             }
         } catch (Exception e) {
-            System.out.println("File belum ada.");
+            e.printStackTrace();
         }
         return list;
     }
 
+    // WRITE (Create / Update / Delete)
     public static void writeData(ArrayList<PasswordData> list) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FILE))) {
             pw.println("id,akun,password,tanggal");
